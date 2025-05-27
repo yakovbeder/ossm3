@@ -1,0 +1,32 @@
+apiVersion: sailoperator.io/v1
+kind: Istio
+metadata:
+    name: default
+spec:
+  namespace: istio-system
+  values:
+    pilot:
+      autoscaleEnabled: true
+      autoscaleMin: 3
+      autoscaleMax: 5
+    global:
+      meshID: mesh1 
+      multiCluster:
+        clusterName: cluster1
+      network: network1
+    meshConfig:
+      defaultConfig:
+        holdApplicationUntilProxyStarts: true
+      enableTracing: true
+      extensionProviders:
+      - name: otel-tracing
+        opentelemetry:
+          port: 4317
+          service: otel-collector.istio-system.svc.cluster.local
+  #     discoverySelectors:
+  #       - matchLabels:
+  #           istio-discovery: enabled
+  updateStrategy:
+    inactiveRevisionDeletionGracePeriodSeconds: 30
+    type: InPlace
+  version: v1.24.3

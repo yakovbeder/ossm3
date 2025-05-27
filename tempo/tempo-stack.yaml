@@ -1,0 +1,39 @@
+apiVersion: tempo.grafana.com/v1alpha1
+kind: TempoStack
+metadata:
+  name: tempo-mesh
+  namespace: tempo
+spec:
+  observability:
+    metrics:
+        createServiceMonitors: true
+        createPrometheusRules: true
+    tracing:
+      jaeger_agent_endpoint: 'localhost:6831'
+      otlp_http_endpoint: 'http://localhost:4320'
+  tenants:
+      mode: openshift 
+      authentication: 
+        - tenantName: dev 
+          tenantId: "1610b0c3-c509-4592-a256-a1871353dbfa"
+        - tenantName: prod
+          tenantId: "1610b0c3-c509-4592-a256-a1871353dbfb"
+  # mode: openshift
+  resources:
+    total:
+      limits:
+        cpu: '4'
+        memory: 4Gi
+  managementState: Managed
+  template:
+    gateway:
+      enabled: true
+    queryFrontend:
+      jaegerQuery:
+        enabled: true
+  storage:
+    secret:
+      name: mesh-tempo-bucket-odf
+      type: s3
+  storageSize: 1Gi
+

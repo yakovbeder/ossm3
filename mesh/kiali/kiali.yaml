@@ -1,0 +1,40 @@
+apiVersion: kiali.io/v1alpha1
+kind: Kiali
+metadata:
+  name: kiali
+  namespace: istio-system
+spec:
+  deployment:
+    logger:
+      log_level: info
+    view_only_mode: false
+    custom_secrets:
+      - name: cacert
+        mount: "/kiali-trace-cert"
+        optional: false
+  external_services: 
+    prometheus:
+      auth:
+        type: bearer
+        use_kiali_token: true
+      thanos_proxy:
+        enabled: true
+      url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+    grafana:
+      enabled: false
+      internal_url: 'http://grafana.istio-system:3000'
+      external_url: 'http://grafana-istio-system.apps.yb-ocp4.rh-igc.com'
+    tracing:
+      enabled: true
+      provider: tempo
+      use_grpc: false
+      internal_url: https://tempo-tempo-mesh-gateway.tempo.svc.cluster.local:8080/api/traces/v1/prod/tempo
+      external_url: https://tempo-tempo-mesh-gateway-tempo.apps.yb-ocp4.rh-igc.com/api/traces/v1/prod/search
+      health_check_url: https://tempo-tempo-mesh-gateway-tempo.apps.yb-ocp4.rh-igc.com/api/traces/v1/prod/tempo/api/echo
+      auth:
+        ca_file: "/kiali-trace-cert/ca.crt"
+        type: bearer
+        use_kiali_token: true
+        insecure_skip_verify: false
+  istio_namespace: istio-system
+  version: default
